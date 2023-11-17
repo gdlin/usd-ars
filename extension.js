@@ -67,9 +67,8 @@ function disable() {
 
 // Handle Requests API Dollar
 async function handle_request_dollar_api() {
-  let dollarQuotation = null;
-  let upDown = null;
-  let upDownIcon = null;
+  let dollarQuotationBuy = null;
+  let dollarQuotationSell = null;
 
   try {
     // Create a new Soup Session
@@ -80,7 +79,7 @@ async function handle_request_dollar_api() {
     // Create body of Soup request
     let message = Soup.Message.new_from_encoded_form(
       "GET",
-      "https://economia.awesomeapi.com.br/last/USD-BRL",
+      "https://dolarapi.com/v1/dolares/blue",
       Soup.form_encode_hash({})
     );
 
@@ -95,31 +94,18 @@ async function handle_request_dollar_api() {
         const body_response = JSON.parse(response);
 
         // Get the value of Dollar Quotation
-        upDown = body_response["USDBRL"]["varBid"];
-        dollarQuotation = body_response["USDBRL"]["bid"];
-        dollarQuotation = dollarQuotation.split(".");
-        dollarQuotation =
-          dollarQuotation[0] + "." + dollarQuotation[1].substring(0, 2);
+        dollarQuotationBuy = body_response["compra"];
+        dollarQuotationSell = body_response["venta"];
 
-        parseFloat(upDown) > 0 ? (upDownIcon = "⬆") : (upDownIcon = "⬇");
-        let rateDisplay = "BRL: $" + dollarQuotation + " ";
-        let iconDisplay = upDownIcon;
-        let iconColor = upDown > 0 ? "darkgreen" : "darkred";
+        let rateDisplay = "ARS: $" + dollarQuotationBuy + "/" + dollarQuotationSell;
 
-        let label1 = new St.Label({
+        let label = new St.Label({
           text: rateDisplay,
           y_align: Clutter.ActorAlign.CENTER,
         });
 
-        let label2 = new St.Label({
-          text: iconDisplay,
-          y_align: Clutter.ActorAlign.CENTER,
-          style: `color: ${iconColor};`,
-        });
-
         panelButtonText = new St.BoxLayout();
-        panelButtonText.add_child(label1);
-        panelButtonText.add_child(label2);
+        panelButtonText.add_child(label);
 
         panelButton.set_child(panelButtonText);
         // Finish Soup Session
@@ -131,7 +117,7 @@ async function handle_request_dollar_api() {
   } catch (error) {
     log(`Traceback Error in [handle_request_dollar_api]: ${error}`);
     panelButtonText = new St.Label({
-      text: "BRL: $" + _dollarQuotation + " * ",
+      text: "ARS: $" + _dollarQuotationBuy + "/" + dollarQuotationSell + " * ",
       y_align: Clutter.ActorAlign.CENTER,
     });
     panelButton.set_child(panelButtonText);
